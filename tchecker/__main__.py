@@ -2,8 +2,8 @@ import argparse
 import os
 import tabulate
 
-from html_processing import get_all_keys_from_html
-from language_file_processing import get_all_keys_from_lang
+from .html_processing import get_all_keys_from_html
+from .language_file_processing import get_all_keys_from_lang
 
 
 def main(base_dir, lang_files, show_missing_keys):

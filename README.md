@@ -21,7 +21,7 @@ Ir returns 0 if no key is missing, -1 otherwise.
 
 ## Example of usage ##
 
-    tchecker C:\HtmlFiles\ en,es
+    tchecker C:\HtmlFiles\ en,es --show-keys
     ........
     Missing keys for file pt.txt
     ---------------------------------------------------------------

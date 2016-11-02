@@ -6,7 +6,7 @@ from .html_processing import get_all_keys_from_html
 from .language_file_processing import get_all_keys_from_lang
 
 
-def main(base_dir, lang_files, show_missing_keys):
+def do_check(base_dir, lang_files, show_missing_keys):
     rows = []
     html_keys = set(get_all_keys_from_html(base_dir))
     rows.append(['html', len(html_keys), '-'])
@@ -44,8 +44,7 @@ def check_lang_files(base_directory, files):
 
     return checked_files
 
-
-if __name__ == '__main__':
+def main():
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument('base_dir', )
     argument_parser.add_argument('language_files')
@@ -62,5 +61,8 @@ if __name__ == '__main__':
         print('Language files not provided')
         exit(-1)
 
-    ret_code = main(args.base_dir, language_files, args.show_keys)
+    ret_code = do_check(args.base_dir, language_files, args.show_keys)
     exit(ret_code)
+
+if __name__ == '__main__':
+    main()

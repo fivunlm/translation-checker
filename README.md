@@ -40,7 +40,7 @@ Ir returns 0 if no key is missing, -1 otherwise.
 # Installation #
 1. Clone this repo or download (and decompress) the zip file
 2. Change directory to translation-checker
-3. Execute the command ``pip install .
+3. Execute the command ``pip install`` .
 
 ## Requirements ##
 * Python 3

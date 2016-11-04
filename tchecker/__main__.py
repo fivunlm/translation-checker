@@ -2,34 +2,45 @@ import argparse
 import os
 import tabulate
 
-from .html_processing import get_all_keys_from_html
+from .html_parser import get_all_resources_from_html
 from .language_file_processing import get_all_keys_from_lang
 
 
 def do_check(base_dir, lang_files, show_missing_keys):
-    rows = []
-    html_keys = set(get_all_keys_from_html(base_dir))
-    rows.append(['html', len(html_keys), '-'])
+    result_rows = []
+    translatable_resources = get_all_resources_from_html(base_dir)
+    result_rows.append(['html', len(translatable_resources), '-'])
     have_missing_keys = False
 
     for file in lang_files:
-        counter = 0
+        missing_keys_count = 0
         lang_keys = set(get_all_keys_from_lang(os.path.join(base_dir, file)))
 
         if show_missing_keys:
             print('Missing keys for file %s' % file)
             print('---------------------------------------------------------------')
 
-        for html_key in html_keys:
-            if html_key not in lang_keys:
-                counter += 1
-                have_missing_keys = True
-                if show_missing_keys:
-                    print(html_key)
-        rows.append([file, len(lang_keys), counter])
+        for tr in translatable_resources:
 
-    print(tabulate.tabulate(rows, headers=['File/s', 'Total keys', 'Missing Keys'], tablefmt='grid'))
+            if tr.key not in lang_keys:
+                missing_keys_count += 1
+                have_missing_keys = True
+
+                if show_missing_keys:
+                    print_translation_resource(tr)
+
+        result_rows.append([file, len(lang_keys), missing_keys_count])
+
+    print(tabulate.tabulate(result_rows, headers=['File/s', 'Total keys', 'Missing Keys'], tablefmt='grid'))
+
     return -1 if have_missing_keys else 0
+
+
+def print_translation_resource(tr):
+
+        print('[%s] Found in:' % tr.key)
+        for l in tr.locations:
+            print('    File: %s Line: %d' % (l.file, l.line))
 
 
 def check_lang_files(base_directory, files):
@@ -43,6 +54,7 @@ def check_lang_files(base_directory, files):
             print('File %s not found in dir %s' % (name, base_directory))
 
     return checked_files
+
 
 def main():
     argument_parser = argparse.ArgumentParser()
@@ -63,6 +75,7 @@ def main():
 
     ret_code = do_check(args.base_dir, language_files, args.show_keys)
     exit(ret_code)
+
 
 if __name__ == '__main__':
     main()

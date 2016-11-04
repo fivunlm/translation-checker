@@ -1,10 +1,7 @@
 import re
 
-import sys
-
 
 def get_all_keys_from_lang(file_path):
-    print('Parsing %s' % file_path)
     reg_ex = re.compile(r'^(\w+)=.+')
     keys = []
     with open(file_path, 'r', encoding="utf8") as file:

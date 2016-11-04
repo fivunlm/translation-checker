@@ -2,7 +2,7 @@
 
     usage: tchecker [-h] [--show-keys] base_dir language_files
 
-It looks all translation keys (akka {res:some_key}) on all html contained on *base_dir* and its subdirectories. Then it parses all keys contained on the *language file/s*.
+It looks all translation keys (aka {res:some_key}) on all html contained on *base_dir* and its subdirectories. Then it parses all keys contained on the *language file/s*.
 After done that it looks for all keys existing on html files not present on each language file.
 
 It shows the result of the analysis as this:

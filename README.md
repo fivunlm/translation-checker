@@ -2,18 +2,21 @@
 
     usage: tchecker [-h] [--show-keys] base_dir language_files
 
-It looks all translation keys (aka {res:some_key}) on all html contained on *base_dir* and its subdirectories. Then it parses all keys contained on the *language file/s*.
+It looks all translation keys (aka {res:some_key} on HTML files) on all html and php files contained on *base_dir* and its subdirectories. Then it parses all keys contained on the *language file/s*.
 After done that it looks for all keys existing on html files not present on each language file.
 
 It shows the result of the analysis as this:
 
-    +----------+--------------+----------------+
-    | File/s   |   Total keys | Missing Keys   |
-    +==========+==============+================+
-    | html     |         1372 | -              |
-    +----------+--------------+----------------+
-    | en.txt   |         4565 | 32             |
-    +----------+--------------+----------------+
+    +-----------+--------------+--------------+----------------+
+    | File/s    | File Count   |   Total Keys | Missing Keys   |
+    +===========+==============+==============+================+
+    | html      | 1254         |         1370 | -              |
+    +-----------+--------------+--------------+----------------+
+    | php       | 831          |          571 | -              |
+    +-----------+--------------+--------------+----------------+
+    | en.txt    | -            |         1864 | 77             |
+    +-----------+--------------+--------------+----------------+
+
 
 By passing *--show-keys* argument it will print a list of missing keys for each language file with detailed info  if any.
 
@@ -34,16 +37,6 @@ Ir returns 0 if no key is missing, -1 otherwise.
         File: C:\HtmlFiles\CustomersTag.html Line: 73
         File: C:\HtmlFiles\CustomersTag.html Line: 119
         File: C:\HtmlFiles\CustomersTag.html Line: 188
-    .........
-    +----------+--------------+----------------+
-    | File/s   |   Total keys | Missing Keys   |
-    +==========+==============+================+
-    | html     |         1372 | -              |
-    +----------+--------------+----------------+
-    | en.txt   |         4565 | 32             |
-    +----------+--------------+----------------+
-    | es.txt   |         4540 | 36             |
-    +----------+--------------+----------------+
 
 # Installation #
 1. Clone this repo or download (and decompress) the zip file

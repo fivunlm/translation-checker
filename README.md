@@ -12,6 +12,8 @@ The definition of translations keys varies according file kind:
 * For PHP:   `$CCSLocales->GetText("some_key")`
 * For CPP/H: `SSF_TRANS_SOME_KEY`
 
+# Output
+
 It shows the result of the analysis as this:
 
     +-----------+--------------+--------------+----------------+

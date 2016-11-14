@@ -116,8 +116,8 @@ def main():
     #         for tr in result['missing_keys']:
     #             print_translation_resource(tr)
 
-    # ret_code = do_check(args.base_dir, language_files, args.show_keys)
-    # exit(ret_code)
+    ret_code = -1 if len(check_result.lang_checks) > 0 else 0
+    exit(ret_code)
 
 
 if __name__ == '__main__':

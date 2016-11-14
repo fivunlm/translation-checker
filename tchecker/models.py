@@ -18,8 +18,33 @@ class TranslatableResource:
         if l not in self.locations:
             self.locations.append(l)
 
-    def __eq__(self, key):
-        return self.key == key
+    def __eq__(self, tr):
+        return self.key == tr.key
 
     def __hash__(self):
         return hash(self.key)
+
+
+class TranslatableResourceSet:
+    def __init__(self):
+        self._internal_list = []
+
+    def append(self, tr):
+        if tr in self._internal_list:
+            for l in tr.locations:
+                self._internal_list[self._internal_list.index(tr)].add_location(l.file, l.line)
+        else:
+            self._internal_list.append(tr)
+
+    def __add__(self, other):
+        # noinspection PyProtectedMember
+        for tr in other._internal_list:
+            self.append(tr)
+        return self
+
+    def __len__(self):
+        return len(self._internal_list)
+
+    def __iter__(self):
+        for tr in self._internal_list:
+            yield tr

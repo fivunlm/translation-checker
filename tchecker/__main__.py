@@ -1,59 +1,82 @@
 import argparse
 import os
+
+import sys
 import tabulate
 
-from .html_parser import get_all_resources_from_html
-from .language_file_processing import get_all_keys_from_lang
+from .models import TranslatableResourceSet
+from .file_utils import get_all_files
+from .parsing_utils import get_resources_from_html_file, get_resources_from_php_file, get_all_keys_from_lang
 
 
-def do_check(base_dir, lang_files, show_missing_keys):
-    result_rows = []
-    translatable_resources = get_all_resources_from_html(base_dir)
-    result_rows.append(['html', len(translatable_resources), '-'])
-    have_missing_keys = False
+class CheckResult:
+    def __init__(self):
+        self.html_file_count = 0
+        self.html_key_count = 0
+        self.php_file_count = 0
+        self.php_key_count = 0
+        self.lang_checks = []
 
-    for file in lang_files:
-        missing_keys_count = 0
-        lang_keys = set(get_all_keys_from_lang(os.path.join(base_dir, file)))
+    def add_lang_keys(self, lang_file, missing_keys):
+        self.lang_checks.append({'lang': lang_file, 'missing_keys': missing_keys})
 
-        if show_missing_keys:
-            print('Missing keys for file %s' % file)
-            print('---------------------------------------------------------------')
 
-        for tr in translatable_resources:
+class TranslationChecker:
+    def __init__(self):
+        self._resources = TranslatableResourceSet()
 
-            if tr.key not in lang_keys:
-                missing_keys_count += 1
-                have_missing_keys = True
+    def _get_resources_not_present_in_list(self, list_of_keys):
+        missing_keys = TranslatableResourceSet()
 
-                if show_missing_keys:
-                    print_translation_resource(tr)
+        for tr in self._resources:
+            if tr.key not in list_of_keys:
+                missing_keys.append(tr)
+        return missing_keys
 
-        result_rows.append([file, len(lang_keys), missing_keys_count])
+    def check(self, base_dir, langs):
+        check_result = CheckResult()
+        html_files, php_files, cpp_files, lang_files = get_all_files(base_dir, langs)
 
-    print(tabulate.tabulate(result_rows, headers=['File/s', 'Total keys', 'Missing Keys'], tablefmt='grid'))
+        for html_file in html_files:
+            # Go to each html files and collect translatable resources
+            r_in_file = get_resources_from_html_file(html_file)
+            self._resources += r_in_file
 
-    return -1 if have_missing_keys else 0
+        check_result.html_file_count = len(html_files)
+        check_result.html_key_count = len(self._resources)
+
+        for php_file in php_files:
+            # Go to each html files and collect translatable resources
+            r_in_file = get_resources_from_php_file(php_file)
+            self._resources += r_in_file
+
+        check_result.php_file_count = len(php_files)
+        check_result.php_key_count = len(self._resources) - check_result.html_key_count
+
+        # TODO: Look in cpp
+
+        print('Found %d unique keys in files. Will analyze language files.' % len(self._resources))
+
+        for lang_file in lang_files:
+            lang_keys = get_all_keys_from_lang(lang_file)
+            missing_keys = self._get_resources_not_present_in_list(lang_keys)
+            check_result.add_lang_keys(lang_file, missing_keys)
+
+        return check_result
 
 
 def print_translation_resource(tr):
+    print('[%s] Found in:' % tr.key)
+    for l in tr.locations:
+        print('    File: %s Line: %d' % (l.file, l.line))
 
-        print('[%s] Found in:' % tr.key)
-        for l in tr.locations:
-            print('    File: %s Line: %d' % (l.file, l.line))
 
-
-def check_lang_files(base_directory, files):
-    checked_files = []
+def sanitize_lang_files(files):
+    sanitized_files = []
     for f in files:
-        name = name if '.ini' in f else '%s.txt' % f
-        full_path = os.path.join(base_directory, name)
-        if os.path.isfile(full_path):
-            checked_files.append(name)
-        else:
-            print('File %s not found in dir %s' % (name, base_directory))
-
-    return checked_files
+        name = name if '.txt' in f else '%s.txt' % f
+        sanitized_files.append(name)
+    return sanitized_files
 
 
 def main():
@@ -68,13 +91,35 @@ def main():
         print('%s is not a directory' % args.base_dir)
         exit(-1)
 
-    language_files = check_lang_files(args.base_dir, args.language_files.split(','))
+    language_files = sanitize_lang_files(args.language_files.split(','))
     if len(language_files) == 0:
         print('Language files not provided')
         exit(-1)
 
-    ret_code = do_check(args.base_dir, language_files, args.show_keys)
-    exit(ret_code)
+    tchecker = TranslationChecker()
+    check_result = tchecker.check(args.base_dir, language_files)
+
+    rows = [['html', check_result.html_file_count, check_result.html_key_count, '-'],
+            ['php', check_result.php_file_count, check_result.php_key_count, '-']]
+
+    for lang_result in check_result.lang_checks:
+        rows.append([
+            os.path.basename(lang_result['lang']),
+            '-',
+            0,
+            len(lang_result['missing_keys'])
+        ])
+
+    print(tabulate.tabulate(rows, headers=['File/s ', 'File Count', 'Total Keys', 'Missing Keys']))
+
+    # for result in check_result:
+    #     print('Language file %s has %d missing keys' % (result['lang'], len(result['missing_keys'])))
+    #     if args.show_keys:
+    #         for tr in result['missing_keys']:
+    #             print_translation_resource(tr)
+
+    # ret_code = do_check(args.base_dir, language_files, args.show_keys)
+    # exit(ret_code)
 
 
 if __name__ == '__main__':

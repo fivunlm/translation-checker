@@ -2,8 +2,15 @@
 
     usage: tchecker [-h] [--show-keys] base_dir language_files
 
-It looks all translation keys (aka {res:some_key} on HTML files) on all html and php files contained on *base_dir* and its subdirectories. Then it parses all keys contained on the *language file/s*.
+It looks all translation keys on all html, php and cpp/h files contained on *base_dir* and its subdirectories. Then it parses all keys contained on the *language file/s*.
 After done that it looks for all keys existing on html files not present on each language file.
+
+## Translation Keys
+The definition of translations keys varies according file kind:
+
+* For HTML:  `{res_some_key}`
+* For PHP:   `$CCSLocales->GetText("some_key")`
+* For CPP/H: `SSF_TRANS_SOME_KEY`
 
 It shows the result of the analysis as this:
 

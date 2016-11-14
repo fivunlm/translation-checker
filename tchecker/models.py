@@ -7,6 +7,11 @@ class ResourceLocation:
     def __eq__(self, location):
         return self.file == location.file and self.line == location.line
 
+    def __lt__(self, other):
+        if self.file == other.file:
+            return self.line < other.line
+        return self.file < other.file
+
 
 class TranslatableResource:
     def __init__(self, key):
@@ -17,9 +22,13 @@ class TranslatableResource:
         l = ResourceLocation(file, line)
         if l not in self.locations:
             self.locations.append(l)
+            self.locations = sorted(self.locations)
 
     def __eq__(self, tr):
         return self.key == tr.key
+
+    def __lt__(self, other):
+        return self.key < other.key
 
     def __hash__(self):
         return hash(self.key)
@@ -35,6 +44,7 @@ class TranslatableResourceSet:
                 self._internal_list[self._internal_list.index(tr)].add_location(l.file, l.line)
         else:
             self._internal_list.append(tr)
+            self._internal_list = sorted(self._internal_list)
 
     def __add__(self, other):
         # noinspection PyProtectedMember

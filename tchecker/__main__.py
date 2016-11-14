@@ -55,8 +55,6 @@ class TranslationChecker:
 
         # TODO: Look in cpp
 
-        print('Found %d unique keys in files. Will analyze language files.' % len(self._resources))
-
         for lang_file in lang_files:
             lang_keys = get_all_keys_from_lang(lang_file)
             missing_keys = self._get_resources_not_present_in_list(lang_keys)
@@ -110,7 +108,7 @@ def main():
             len(lang_result['missing_keys'])
         ])
 
-    print(tabulate.tabulate(rows, headers=['File/s ', 'File Count', 'Total Keys', 'Missing Keys']))
+    print(tabulate.tabulate(rows, headers=['File/s ', 'File Count', 'Total Keys', 'Missing Keys'], tablefmt='grid'))
 
     # for result in check_result:
     #     print('Language file %s has %d missing keys' % (result['lang'], len(result['missing_keys'])))

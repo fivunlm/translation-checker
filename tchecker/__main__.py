@@ -110,11 +110,11 @@ def main():
 
     print(tabulate.tabulate(rows, headers=['File/s ', 'File Count', 'Total Keys', 'Missing Keys'], tablefmt='grid'))
 
-    # for result in check_result:
-    #     print('Language file %s has %d missing keys' % (result['lang'], len(result['missing_keys'])))
-    #     if args.show_keys:
-    #         for tr in result['missing_keys']:
-    #             print_translation_resource(tr)
+    if args.show_keys:
+        for result in check_result.lang_checks:
+            print('Language file %s has %d missing keys' % (result['lang'], len(result['missing_keys'])))
+            for tr in result['missing_keys']:
+                print_translation_resource(tr)
 
     ret_code = -1 if len(check_result.lang_checks) > 0 else 0
     exit(ret_code)

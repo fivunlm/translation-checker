@@ -8,7 +8,7 @@ After done that it looks for all keys existing on html files not present on each
 ## Translation Keys
 The definition of translations keys varies according file kind:
 
-* For HTML:  `{res_some_key}`
+* For HTML:  `{res:some_key}`
 * For PHP:   `$CCSLocales->GetText("some_key")`
 * For CPP/H: `SSF_TRANS_SOME_KEY`
 

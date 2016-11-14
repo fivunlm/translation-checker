@@ -6,7 +6,8 @@ import tabulate
 
 from .models import TranslatableResourceSet
 from .file_utils import get_all_files
-from .parsing_utils import get_resources_from_html_file, get_resources_from_php_file, get_all_keys_from_lang
+from .parsing_utils import get_resources_from_html_file, get_resources_from_php_file, get_all_keys_from_lang, \
+    get_resources_from_cpp_file
 
 
 class CheckResult:
@@ -15,10 +16,18 @@ class CheckResult:
         self.html_key_count = 0
         self.php_file_count = 0
         self.php_key_count = 0
+        self.cpp_file_count = 0
+        self.cpp_key_count = 0
         self.lang_checks = []
 
-    def add_lang_keys(self, lang_file, missing_keys):
-        self.lang_checks.append({'lang': lang_file, 'missing_keys': missing_keys})
+    def add_lang_keys(self, lang_file, total_keys, missing_keys):
+        self.lang_checks.append(
+            {
+                'lang': lang_file,
+                'total_keys': total_keys,
+                'missing_keys': missing_keys
+            }
+        )
 
 
 class TranslationChecker:
@@ -38,7 +47,7 @@ class TranslationChecker:
         html_files, php_files, cpp_files, lang_files = get_all_files(base_dir, langs)
 
         for html_file in html_files:
-            # Go to each html files and collect translatable resources
+            # Go to each html file and collect translatable resources
             r_in_file = get_resources_from_html_file(html_file)
             self._resources += r_in_file
 
@@ -46,19 +55,25 @@ class TranslationChecker:
         check_result.html_key_count = len(self._resources)
 
         for php_file in php_files:
-            # Go to each html files and collect translatable resources
+            # Go to each php file and collect translatable resources
             r_in_file = get_resources_from_php_file(php_file)
             self._resources += r_in_file
 
         check_result.php_file_count = len(php_files)
         check_result.php_key_count = len(self._resources) - check_result.html_key_count
 
-        # TODO: Look in cpp
+        for cpp_file in cpp_files:
+            # Go to each cpp file and collect translatable resources
+            r_in_file = get_resources_from_cpp_file(cpp_file)
+            self._resources += r_in_file
+
+        check_result.cpp_file_count = len(cpp_files)
+        check_result.cpp_key_count = len(self._resources) - check_result.html_key_count - check_result.php_key_count
 
         for lang_file in lang_files:
             lang_keys = get_all_keys_from_lang(lang_file)
             missing_keys = self._get_resources_not_present_in_list(lang_keys)
-            check_result.add_lang_keys(lang_file, missing_keys)
+            check_result.add_lang_keys(lang_file, len(lang_keys), missing_keys)
 
         return check_result
 
@@ -98,13 +113,14 @@ def main():
     check_result = tchecker.check(args.base_dir, language_files)
 
     rows = [['html', check_result.html_file_count, check_result.html_key_count, '-'],
-            ['php', check_result.php_file_count, check_result.php_key_count, '-']]
+            ['php', check_result.php_file_count, check_result.php_key_count, '-'],
+            ['cpp', check_result.cpp_file_count, check_result.cpp_key_count, '-']]
 
     for lang_result in check_result.lang_checks:
         rows.append([
             os.path.basename(lang_result['lang']),
             '-',
-            0,
+            lang_result['total_keys'],
             len(lang_result['missing_keys'])
         ])
 

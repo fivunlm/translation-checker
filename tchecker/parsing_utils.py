@@ -35,7 +35,7 @@ def get_resources_from_php_file(file_path):
 
 
 def get_resources_from_cpp_file(file_path):
-    pass
+    return _get_resources_for_file_and_regex(r'(SSF_TRANS\w+)', file_path)
 
 
 def get_all_keys_from_lang(file_path):
